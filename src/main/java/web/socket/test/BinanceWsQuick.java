@@ -39,7 +39,7 @@ public class BinanceWsQuick {
                 }).join();
 
         // 프로그램이 바로 끝나지 않도록 대기
-        Thread.sleep(60_000); // 60초 동안 데이터 보기
+        Thread.sleep(30_000); // 60초 동안 데이터 보기
         ws.sendClose(WebSocket.NORMAL_CLOSURE, "bye");
     }
 }
