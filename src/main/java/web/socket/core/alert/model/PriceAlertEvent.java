@@ -1,5 +1,6 @@
 package web.socket.core.alert.model;
 
+// ( 실제 발생한 알림 )
 public class PriceAlertEvent {
 
     public String conditionId;    // 어떤 조건에 의해 발생했는지

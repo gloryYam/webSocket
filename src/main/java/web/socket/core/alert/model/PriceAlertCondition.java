@@ -1,5 +1,6 @@
 package web.socket.core.alert.model;
 
+// ( 사용자가 설정한 조건 )
 public class PriceAlertCondition {
 
     public String id;             // 알림 ID (UUID 등)
