@@ -1,8 +1,10 @@
 package web.socket.core.market;
 
+@FunctionalInterface
 public interface TradeMessageListener {
 
     void onMessage(LivePriceEvent event);
 
-    void onError(Throwable t);
+    default void onError(Throwable t) {}
+    default void onClose() {}
 }
