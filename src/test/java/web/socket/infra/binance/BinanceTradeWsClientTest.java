@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class BinanceTradeWsClientTest {
 
     @Test
-    @DisplayName("바이넨스 연결 테스트")
     void test1() {
 
         BinanceTradeWsClient client = new BinanceTradeWsClient();
@@ -24,7 +23,6 @@ class BinanceTradeWsClientTest {
     }
 
     @Test
-    @DisplayName("connect() 후 true")
     void test2() {
 
         BinanceTradeWsClient client = new BinanceTradeWsClient();
@@ -33,7 +31,6 @@ class BinanceTradeWsClientTest {
     }
 
     @Test
-    @DisplayName("connect() 후 true")
     void test3() {
 
         BinanceTradeWsClient client = new BinanceTradeWsClient();
@@ -44,7 +41,6 @@ class BinanceTradeWsClientTest {
     }
 
     @Test
-    @DisplayName("connect() 후 true")
     void test4() {
 
         BinanceTradeWsClient client = new BinanceTradeWsClient();
@@ -56,4 +52,30 @@ class BinanceTradeWsClientTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("이미 연결된 WebSocket 입니다.");
     }
+
+    @Test
+    void disconnect_shouldSetRunningFalse() {
+
+        BinanceTradeWsClient client = new BinanceTradeWsClient();
+
+        client.connect("BTCUSDT", event -> {});
+
+        client.disconnect();
+
+        assertThat(client.isRunning()).isFalse();
+    }
+
+
+    @Test
+    void disconnect_shouldBeIdempotent() {
+        BinanceTradeWsClient client = new BinanceTradeWsClient();
+        client.connect("BTCUSDT", event -> {});
+
+        client.disconnect();
+        client.disconnect(); // 두 번째 호출도 예외 없어야
+
+        assertThat(client.isRunning()).isFalse();
+    }
+
+
 }
