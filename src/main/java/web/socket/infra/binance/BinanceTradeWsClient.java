@@ -25,6 +25,10 @@ public class BinanceTradeWsClient {
         return running;
     }
 
+    protected void markClosedByServer() {
+        this.running = false;
+    }
+
     String buildStreamUrl(String symbol) {
         String stream = symbol.toLowerCase() + "@trade";
         return BASE_WS_URL + stream;
@@ -38,11 +42,12 @@ public class BinanceTradeWsClient {
         }
 
         String url = buildStreamUrl(symbol);
-
         this.running = true;
 
+        TradeWebSocketListener wsListener = new TradeWebSocketListener(url, parser, listener, this::markClosedByServer);
+
         this.webSocket = httpClient.newWebSocketBuilder()
-                .buildAsync(URI.create(url), new DummyWebSocketListner())
+                .buildAsync(URI.create(url), wsListener)
                 .join();
     }
 
@@ -61,16 +66,22 @@ public class BinanceTradeWsClient {
     }
 
 
-    private static class TradeWebSocketListener implements WebSocket.Listener {
+    protected static class TradeWebSocketListener implements WebSocket.Listener {
 
         private final String url;
         private final BinanceTradeParser parser;
         private final TradeMessageListener listener;
+        private final Runnable onServerClose;   // 추가!
 
         public TradeWebSocketListener(String url, BinanceTradeParser parser, TradeMessageListener listener) {
+            this(url, parser, listener, () -> {}); // 아무 것도 안 하는 콜백
+        }
+
+        public TradeWebSocketListener(String url, BinanceTradeParser parser, TradeMessageListener listener, Runnable onServerClose) {
             this.url = url;
             this.parser = parser;
             this.listener = listener;
+            this.onServerClose = onServerClose;
         }
 
         @Override
@@ -78,6 +89,7 @@ public class BinanceTradeWsClient {
 
             try {
                 LivePriceEvent event = parser.parse(data.toString());
+                listener.onMessage(event);
             } catch (Exception e) {
                 listener.onError(e);
             }
@@ -88,6 +100,7 @@ public class BinanceTradeWsClient {
         @Override
         public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
             listener.onClose();
+            onServerClose.run();
             return null;
         }
     }

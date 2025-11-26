@@ -7,4 +7,5 @@ public interface TradeMessageListener {
 
     default void onError(Throwable t) {}
     default void onClose() {}
+
 }
